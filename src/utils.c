@@ -1,7 +1,7 @@
 /*
  * utils.c - Misc utilities
  *
- * Copyright (C) 2013 - 2018, Max Lv <max.c.lv@gmail.com>
+ * Copyright (C) 2013 - 2019, Max Lv <max.c.lv@gmail.com>
  *
  * This file is part of the shadowsocks-libev.
  *
@@ -360,6 +360,10 @@ usage()
 #endif
     printf(
         "       [-U]                       Enable UDP relay and disable TCP relay.\n");
+#ifdef MODULE_REDIR
+    printf(
+        "       [-T]                       Use tproxy instead of redirect (for tcp).\n");
+#endif
 #ifdef MODULE_REMOTE
     printf(
         "       [-6]                       Resovle hostname to IPv6 address first.\n");
@@ -546,8 +550,17 @@ get_default_conf(void)
         return userconf;
 
     // If not, fall back to the system-wide config.
+    free(userconf);
     return sysconf;
 #else
     return "config.json";
 #endif
+}
+
+uint16_t
+load16_be(const void *s)
+{
+    const uint8_t *in = (const uint8_t *)s;
+    return ((uint16_t)in[0] << 8)
+           | ((uint16_t)in[1]);
 }
